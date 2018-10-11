@@ -10,18 +10,15 @@ import (
 	"github.com/eggegg/t-invocing-app/renderings"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
-	"golang.org/x/crypto/bcrypt"
 )
 
-// Login - Login Handler will take a username and password from the request
-// hash the password, verify it matches in the database and respond with a token
-func Login(c echo.Context) error {
-	resp := renderings.LoginResponse{}
-	lr := new(bindings.LoginRequest)
+func Register(c echo.Context) error {
+	resp := renderings.RegisterResponse{}
+	lr := new(bindings.RegisterRequest)
 
 	if err := c.Bind(lr); err != nil {
 		resp.Success = false
-		resp.Message = "Unable to bind request for login"
+		resp.Message = "Unable to bind request for register"
 		return c.JSON(http.StatusBadRequest, resp)
 	}
 
@@ -31,21 +28,15 @@ func Login(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, resp)
 	} // get DB from context
 	db := c.Get(models.DBContextKey).(*sql.DB)
+
 	// get user by username from models
-	user, err := models.GetUserByUsername(db, lr.Username)
+	user, err := models.CreateUser(db, lr.Username, lr.Password, lr.Email)
 	if err != nil {
 		resp.Success = false
-		resp.Message = "Username or Password incorrect"
+		resp.Message = "Create User failure"+err.Error()
 		return c.JSON(http.StatusUnauthorized, resp)
 	}
-
-	if err := bcrypt.CompareHashAndPassword(
-		user.PasswordHash, []byte(lr.Password)); err != nil {
-		resp.Success = false
-		resp.Message = "Username or Password incorrect"
-		return c.JSON(http.StatusUnauthorized, resp)
-	} // need to make a token, successful login
-
+	
 	signingKey := c.Get(models.SigningContextKey).([]byte)
 
 	// Create the Claims
@@ -65,4 +56,5 @@ func Login(c echo.Context) error {
 	resp.Token = ss
 
 	return c.JSON(http.StatusOK, resp)
+
 }

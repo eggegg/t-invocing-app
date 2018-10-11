@@ -8,6 +8,7 @@ import (
 var (
 	ErrUsernameEmpty = errors.New("username cannot be empty")
 	ErrPasswordEmpty = errors.New("password cannot be empty")
+	ErrEmailEmpty = errors.New("email cannot be empty")
 )
 
 type RequestErrors struct {
