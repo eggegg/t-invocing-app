@@ -64,7 +64,9 @@ func Login(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, resp)
 	}
 
+	resp.Success = true
 	resp.Token = ss
+	resp.User = user
 
 	return c.JSON(http.StatusOK, resp)
 }

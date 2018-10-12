@@ -103,3 +103,11 @@ func GetOneInvoice(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, resp)
 }
+
+func SendInvoice(c echo.Context) error {
+	resp := renderings.ResultResponse{}
+	resp.Success = true
+	resp.Message = "Get invoice success " 
+
+	return c.JSON(http.StatusOK, resp)
+}

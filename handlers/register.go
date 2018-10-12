@@ -33,8 +33,8 @@ func Register(c echo.Context) error {
 	user, err := models.CreateUser(db, lr.Username, lr.Password, lr.Email)
 	if err != nil {
 		resp.Success = false
-		resp.Message = "Create User failure"+err.Error()
-		return c.JSON(http.StatusUnauthorized, resp)
+		resp.Message = "Create User failure"
+		return c.JSON(http.StatusOK, resp)
 	}
 	
 	signingKey := c.Get(models.SigningContextKey).([]byte)
@@ -53,10 +53,12 @@ func Register(c echo.Context) error {
 	if err != nil {
 		resp.Success = false
 		resp.Message = "Server Error"
-		return c.JSON(http.StatusInternalServerError, resp)
+		return c.JSON(http.StatusOK, resp)
 	}
 
+	resp.Success = true
 	resp.Token = ss
+	resp.User = user
 
 	return c.JSON(http.StatusOK, resp)
 

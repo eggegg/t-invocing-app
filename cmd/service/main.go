@@ -20,6 +20,11 @@ func main()  {
 
 	e.Logger.SetLevel(log.DEBUG)
 
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+	  AllowOrigins: []string{"*"},
+	  AllowHeaders: []string{"*"},
+	}))
+
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
@@ -56,7 +61,7 @@ func main()  {
 	reminderGroup.POST("", handlers.CreateInvoice) // create new invoice
 	reminderGroup.GET("/user/:user_id", handlers.GetUserInvoice) // to fetch all invoices for a user
 	reminderGroup.GET("/user/:user_id/:invoce_id", handlers.GetOneInvoice) // to fetch a certain invoice
-	// reminderGroup.POST("/send", handlers.SendInvoice) // send a invoice to client
+	reminderGroup.POST("/sendmail", handlers.SendInvoice) // send a invoice to client
 
 	// Route / to handler function
 	e.GET("/health-check", handlers.HealthCheck)
