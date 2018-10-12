@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -12,12 +11,18 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-
+	"github.com/labstack/gommon/log"
 )
 
 func main()  {
 	// create a new echo instance
 	e := echo.New()
+
+	e.Logger.SetLevel(log.DEBUG)
+
+	// Middleware
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 
 	// Signing Key for our auth middleware
 	var signingKey = []byte("superdupersecret!")
@@ -27,13 +32,6 @@ func main()  {
 			return next(c)
 		}
 	})
-
-	// hash, err := bcrypt.GenerateFromPassword([]byte("admin"), bcrypt.DefaultCost)
-	// if err != nil {
-    //     log.Println(err)
-    // }
-	// encodePW := string(hash)  // 保存在数据库的密码，虽然每次生成都不同，只需保存一份即可
-    // log.Println(encodePW)
 
 	// add database to context
 	db, err := sql.Open("mysql", "homestead:secret@tcp(localhost:33060)/t_invocing_app?charset=utf8") //第一个参数为驱动名  
@@ -52,9 +50,12 @@ func main()  {
 	reminderGroup := e.Group("/invoice")
 	reminderGroup.Use(middleware.JWT(signingKey))
 
-	// reminderGroup.POST("", handlers.CreateInvoice) // create new invoice
-	// reminderGroup.GET("/user/:user_id", handlers.GetUserInvoice) // to fetch all invoices for a user
-	// reminderGroup.GET("/user/:user_id/:invoce_id", handlers.GetOneInvoice) // to fetch a certain invoice
+
+	reminderGroup.GET("/hello", handlers.HelloWorld)
+
+	reminderGroup.POST("", handlers.CreateInvoice) // create new invoice
+	reminderGroup.GET("/user/:user_id", handlers.GetUserInvoice) // to fetch all invoices for a user
+	reminderGroup.GET("/user/:user_id/:invoce_id", handlers.GetOneInvoice) // to fetch a certain invoice
 	// reminderGroup.POST("/send", handlers.SendInvoice) // send a invoice to client
 
 	// Route / to handler function

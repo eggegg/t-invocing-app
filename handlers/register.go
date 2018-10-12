@@ -39,13 +39,16 @@ func Register(c echo.Context) error {
 	
 	signingKey := c.Get(models.SigningContextKey).([]byte)
 
-	// Create the Claims
-	claims := &jwt.StandardClaims{
-		ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
-		Issuer:    user.Username,
-	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	// create token
+	token := jwt.New(jwt.SigningMethodHS256)
+
+	// set claims
+	claims := token.Claims.(jwt.MapClaims)
+	claims["username"] = user.Username
+	claims["id"] = user.ID
+	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+
 	ss, err := token.SignedString(signingKey)
 	if err != nil {
 		resp.Success = false
